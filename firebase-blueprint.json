@@ -1,0 +1,197 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Represents a Bharat Connect registered user profile",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique identifier of the user (from Firebase Authentication)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The name selected by the user"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The Indian phone number of the user with regional prefix"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Optional email address associated with the account"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL of the profile photo uploaded by the user"
+        },
+        "statusMessage": {
+          "type": "string",
+          "description": "Brief bio status, e.g. 'Connecting Bharat 🇮🇳' or 'At the Gym'"
+        },
+        "primaryLanguage": {
+          "type": "string",
+          "enum": ["English", "Hindi", "Bengali", "Tamil", "Telugu"],
+          "description": "The user's preferred language for real-time AI subtitle translation"
+        },
+        "onlineStatus": {
+          "type": "string",
+          "enum": ["online", "offline"],
+          "description": "Real-time presence state of the user"
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the user's last interaction"
+        }
+      },
+      "required": ["uid", "displayName", "phoneNumber", "onlineStatus", "lastSeen"]
+    },
+    "ChatRoom": {
+      "title": "Chat Room",
+      "description": "Either a one-to-one conversational bridge or a multi-party group",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the chat room"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["one-to-one", "group"],
+          "description": "The format of the conversation"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the group (if group), or empty for one-to-one chats"
+        },
+        "members": {
+          "type": "array",
+          "description": "List of user UIDs participating in this room"
+        },
+        "lastMessageText": {
+          "type": "string",
+          "description": "Preview of the most recent message posted"
+        },
+        "lastMessageAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the latest message"
+        }
+      },
+      "required": ["id", "type", "members", "lastMessageAt"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "A single text or media message sent within a specific ChatRoom",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Message unique identifier"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "UID of the user who sent the message"
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Display name of the sender cache"
+        },
+        "text": {
+          "type": "string",
+          "description": "Actual raw content of the message"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "image", "video", "audio", "document"],
+          "description": "Media type of the message"
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "Optional URL pointing to any uploaded media files"
+        },
+        "reactions": {
+          "type": "object",
+          "description": "Key-value map of emoji reactions, e.g. {'👍': ['uid1', 'uid2']}"
+        },
+        "seenBy": {
+          "type": "array",
+          "description": "List of user UIDs who have read this message"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of message creation"
+        }
+      },
+      "required": ["id", "senderId", "senderName", "text", "type", "createdAt"]
+    },
+    "CallHistory": {
+      "title": "Call History",
+      "description": "A record of an audio or video calling session",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the call session"
+        },
+        "hostId": {
+          "type": "string",
+          "description": "UID of the caller who initiated the dial sequence"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["video", "voice"],
+          "description": "The media type of the call"
+        },
+        "isGroup": {
+          "type": "boolean",
+          "description": "True if this was a group room lobby meeting"
+        },
+        "participants": {
+          "type": "array",
+          "description": "List of joined user UIDs"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["missed", "completed", "ongoing"],
+          "description": "Resulting state of the call"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Dial start timestamp"
+        },
+        "durationSeconds": {
+          "type": "integer",
+          "description": "Length of call session in seconds"
+        },
+        "aiSummary": {
+          "type": "string",
+          "description": "Gemini-extracted notes and meeting insights"
+        }
+      },
+      "required": ["id", "hostId", "type", "isGroup", "participants", "status", "startTime"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profile database"
+    },
+    "chats/{chatId}": {
+      "schema": "ChatRoom",
+      "description": "Top-level index of chat communication channels"
+    },
+    "chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Nested collection of individual exchange messages"
+    },
+    "calls/{callId}": {
+      "schema": "CallHistory",
+      "description": "Log of completed and inbound video/audio call histories"
+    }
+  }
+}

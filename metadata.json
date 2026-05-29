@@ -1,0 +1,6 @@
+{
+  "name": "Bharat Connect",
+  "description": "A modern Indian video calling and chat application with real-time AI live subtitles, background blur, and offline messaging simulation.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
